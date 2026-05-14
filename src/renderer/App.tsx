@@ -3794,6 +3794,7 @@ const App: React.FC = () => {
                   }}
                   onAddNew={() => { setEditingServer(null); setShowModal(true); }}
                   onQuickConnect={() => setQuickConnectOpen(true)}
+                  connectingServerId={connectingServerId}
                 />
               </div>
             </div>

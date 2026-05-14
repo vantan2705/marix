@@ -25,6 +25,7 @@ interface Props {
   onReorder?: (servers: Server[]) => void;
   onAddNew?: () => void;
   onQuickConnect?: () => void;
+  connectingServerId?: string | null;
 }
 
 // Protocol colors and icons
@@ -154,6 +155,7 @@ const ServerList: React.FC<Props> = ({
   onReorder,
   onAddNew,
   onQuickConnect,
+  connectingServerId,
 }) => {
   const { t } = useLanguage();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -446,6 +448,7 @@ const ServerList: React.FC<Props> = ({
               const protocol = PROTOCOL_CONFIG[server.protocol || 'ssh'];
               const isHovered = hoveredId === server.id;
               const isSelected = selectedServerIds.includes(server.id);
+              const isConnecting = connectingServerId === server.id;
               const connectionStr = server.protocol === 'wss' 
                 ? (server.wssUrl || server.host)
                 : `${server.username}@${server.host}:${server.port}`;
@@ -453,14 +456,16 @@ const ServerList: React.FC<Props> = ({
               return (
                 <div
                   key={server.id}
-                  draggable={!isMultiSelectMode && !searchTerm}
+                  draggable={!isMultiSelectMode && !searchTerm && !isConnecting}
                   onDragStart={(e) => handleDragStart(e, server)}
                   onDragEnd={handleDragEnd}
                   onDragOver={(e) => handleDragOver(e, server.id)}
                   onDragLeave={handleDragLeave}
                   onDrop={(e) => handleDrop(e, server)}
-                  className={`group relative bg-navy-800 rounded-lg border transition-all duration-200 cursor-pointer ${
-                    isSelected
+                  className={`group relative bg-navy-800 rounded-lg border transition-all duration-200 ${isConnecting ? 'cursor-wait' : 'cursor-pointer'} ${
+                    isConnecting
+                      ? 'border-teal-400/70 shadow-lg shadow-teal-500/20 ring-2 ring-teal-500/20'
+                      : isSelected
                       ? 'border-teal-500 shadow-lg shadow-teal-500/20 ring-2 ring-teal-500/30'
                       : dragOverId === server.id
                       ? 'border-teal-400 border-dashed bg-teal-500/10'
@@ -474,6 +479,8 @@ const ServerList: React.FC<Props> = ({
                     if (isMultiSelectMode) {
                       e.stopPropagation();
                       toggleSelection(server.id);
+                    } else if (isConnecting) {
+                      e.stopPropagation();
                     } else {
                       onConnect(server);
                     }
@@ -509,7 +516,7 @@ const ServerList: React.FC<Props> = ({
                     style={{ backgroundColor: protocol.color }}
                   />
 
-                  <div className="p-4">
+                  <div className={`p-4 transition-opacity ${isConnecting ? 'opacity-60' : 'opacity-100'}`}>
                     {/* Header */}
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-2">
@@ -529,7 +536,7 @@ const ServerList: React.FC<Props> = ({
                       </div>
                       
                       {/* Actions */}
-                      <div className={`flex gap-1 transition-opacity ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
+                      <div className={`flex gap-1 transition-opacity ${isHovered && !isConnecting ? 'opacity-100' : 'opacity-0'}`}>
                         <button
                           onClick={(e) => { e.stopPropagation(); onEdit(server); }}
                           className="p-1.5 rounded hover:bg-navy-700 text-gray-400 hover:text-white transition-colors"
@@ -573,6 +580,15 @@ const ServerList: React.FC<Props> = ({
                       </div>
                     )}
                   </div>
+
+                  {isConnecting && (
+                    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 rounded-lg bg-navy-900/70 backdrop-blur-[1px]">
+                      <div className="w-8 h-8 rounded-full border-2 border-teal-400/30 border-t-teal-300 animate-spin" />
+                      <div className="px-2.5 py-1 rounded-full bg-navy-900/90 border border-teal-500/30 text-[11px] font-medium text-teal-200 shadow-lg">
+                        {t('connecting') || 'Connecting...'}
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}
