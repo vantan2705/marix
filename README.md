@@ -542,6 +542,46 @@ npm run package:mac    # macOS (.zip)
 npm run package:linux  # Linux (.AppImage, .deb, .rpm)
 \`\`\`
 
+### Build Linux Releases on Windows
+
+Build Linux release files from Windows with Docker Desktop instead of running `npm run package:linux` directly on Windows. AppImage packaging needs Linux tools such as `mksquashfs`, and native modules should be rebuilt for Linux.
+
+PowerShell:
+
+\`\`\`powershell
+cd C:\projects\marix
+
+docker pull electronuserland/builder:latest
+
+docker run --rm `
+  -v "${PWD}:/project" `
+  -v marix-node-modules-linux:/project/node_modules `
+  -v marix-npm-cache-linux:/root/.npm `
+  -v marix-electron-cache-linux:/root/.cache/electron `
+  -v marix-electron-builder-cache-linux:/root/.cache/electron-builder `
+  -w /project `
+  electronuserland/builder:latest `
+  /bin/bash -lc "npm ci && npm run package:linux"
+\`\`\`
+
+Git Bash:
+
+\`\`\`bash
+cd /c/projects/marix
+
+MSYS_NO_PATHCONV=1 docker run --rm \
+  -v "$(pwd):/project" \
+  -v marix-node-modules-linux:/project/node_modules \
+  -v marix-npm-cache-linux:/root/.npm \
+  -v marix-electron-cache-linux:/root/.cache/electron \
+  -v marix-electron-builder-cache-linux:/root/.cache/electron-builder \
+  -w /project \
+  electronuserland/builder:latest \
+  /bin/bash -lc "npm ci && npm run package:linux"
+\`\`\`
+
+Outputs are written to `release/`: `Marix-<version>.AppImage`, `marix_<version>_amd64.deb`, and `marix-<version>.x86_64.rpm`.
+
 ### System Requirements
 
 | Component | Minimum | Recommended |

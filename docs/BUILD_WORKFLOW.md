@@ -141,6 +141,67 @@ npm run package:mac    # ZIP archive
 
 ---
 
+## Build Linux Releases from Windows
+
+Do not build Linux release artifacts directly with `npm run package:linux` on Windows. The Windows build can unpack Electron for Linux, but AppImage packaging needs Linux tools such as `mksquashfs`, and native modules such as `node-pty` and `sqlite3` should be rebuilt in a Linux environment.
+
+Use Docker Desktop with Linux containers instead. The command below keeps Linux `node_modules` in a Docker volume, so it does not overwrite the Windows `node_modules` folder in the working tree.
+
+### Prerequisites
+
+- Docker Desktop installed and running
+- Docker set to Linux containers
+- Repository checked out on Windows, for example `C:\projects\marix`
+
+### PowerShell
+
+```powershell
+cd C:\projects\marix
+
+docker pull electronuserland/builder:latest
+
+docker run --rm `
+  -v "${PWD}:/project" `
+  -v marix-node-modules-linux:/project/node_modules `
+  -v marix-npm-cache-linux:/root/.npm `
+  -v marix-electron-cache-linux:/root/.cache/electron `
+  -v marix-electron-builder-cache-linux:/root/.cache/electron-builder `
+  -w /project `
+  electronuserland/builder:latest `
+  /bin/bash -lc "npm ci && npm run package:linux"
+```
+
+### Git Bash
+
+```bash
+cd /c/projects/marix
+
+docker pull electronuserland/builder:latest
+
+MSYS_NO_PATHCONV=1 docker run --rm \
+  -v "$(pwd):/project" \
+  -v marix-node-modules-linux:/project/node_modules \
+  -v marix-npm-cache-linux:/root/.npm \
+  -v marix-electron-cache-linux:/root/.cache/electron \
+  -v marix-electron-builder-cache-linux:/root/.cache/electron-builder \
+  -w /project \
+  electronuserland/builder:latest \
+  /bin/bash -lc "npm ci && npm run package:linux"
+```
+
+Successful output is written to `release/`:
+
+```text
+release/Marix-<version>.AppImage
+release/marix_<version>_amd64.deb
+release/marix-<version>.x86_64.rpm
+release/linux-unpacked/
+```
+
+If Docker is not available, build from WSL/Ubuntu after installing Node.js and Linux packaging dependencies, then run `npm ci && npm run package:linux` inside WSL. Docker is preferred because it avoids mixing Windows and Linux native dependencies in one `node_modules` directory.
+
+---
+
 ## 🔄 Triggers
 
 The build workflow runs on:
