@@ -296,14 +296,33 @@ const DualPaneSFTP: React.FC<Props> = ({ connectionId, server, initialLocalPath,
       'sql', 'csv', 'tsv',
       'dockerfile',
     ];
+
+    // Explicit binary/non-text extensions
+    const nonEditableExts = [
+      'png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'ico', 'tiff', 'heic',
+      'mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a',
+      'mp4', 'mkv', 'mov', 'avi', 'webm', 'wmv',
+      'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
+      'zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz',
+      'exe', 'dll', 'so', 'dylib', 'bin', 'iso',
+      'ttf', 'otf', 'woff', 'woff2',
+    ];
+
     const lowerName = filename.toLowerCase();
-    if (lowerName === 'dockerfile' || lowerName === 'makefile' || 
+    // Special files (no extension) should still be editable
+    if (lowerName === 'default' ||
+        lowerName === 'dockerfile' || lowerName === 'makefile' ||
         lowerName === 'caddyfile' || lowerName === 'vagrantfile' ||
         lowerName.startsWith('.env') || lowerName.startsWith('.git') ||
         lowerName.endsWith('rc') || lowerName.endsWith('ignore')) {
       return true;
     }
-    return editableExts.includes(ext);
+
+    if (editableExts.includes(ext)) return true;
+    if (nonEditableExts.includes(ext)) return false;
+
+    // Allow uncommon/no-extension files by default (unless known binary above)
+    return true;
   };
 
   // Open remote file in editor

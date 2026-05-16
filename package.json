@@ -16,7 +16,8 @@
     "minimatch": "^10.2.4",
     "@isaacs/brace-expansion": "^5.0.1",
     "qs": "^6.15.0",
-    "serialize-javascript": "^7.0.4"
+    "serialize-javascript": "^7.0.4",
+    "node-abi": "^4.11.0"
   },
   "scripts": {
     "postinstall": "electron-rebuild -f -w sqlite3 || true",
@@ -74,7 +75,7 @@
     "@types/ssh2": "^1.15.5",
     "copy-webpack-plugin": "^13.0.1",
     "css-loader": "^7.1.2",
-    "electron": "^39.8.10",
+    "electron": "^42.1.0",
     "electron-builder": "^26.4.0",
     "html-webpack-plugin": "^5.6.5",
     "identity-obj-proxy": "^3.0.0",

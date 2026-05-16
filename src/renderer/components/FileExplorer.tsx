@@ -195,15 +195,31 @@ const FileExplorer: React.FC<Props> = ({ connectionId, server }) => {
       // Docker
       'dockerfile',
     ];
+
+    // Explicit binary/non-text extensions
+    const nonEditableExts = [
+      'png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'ico', 'tiff', 'heic',
+      'mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a',
+      'mp4', 'mkv', 'mov', 'avi', 'webm', 'wmv',
+      'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
+      'zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz',
+      'exe', 'dll', 'so', 'dylib', 'bin', 'iso',
+      'ttf', 'otf', 'woff', 'woff2',
+    ];
+
     const lowerName = filename.toLowerCase();
     // Check special files
-    if (lowerName === 'dockerfile' || lowerName === 'makefile' || 
+    if (lowerName === 'default' ||
+        lowerName === 'dockerfile' || lowerName === 'makefile' || 
         lowerName === 'caddyfile' || lowerName === 'vagrantfile' ||
         lowerName.startsWith('.env') || lowerName.startsWith('.git') ||
         lowerName.endsWith('rc') || lowerName.endsWith('ignore')) {
       return true;
     }
-    return editableExts.includes(ext);
+
+    if (editableExts.includes(ext)) return true;
+    if (nonEditableExts.includes(ext)) return false;
+    return true;
   };
 
   // Show loading while connecting
