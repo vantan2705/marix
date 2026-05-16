@@ -3337,8 +3337,17 @@ ipcMain.handle('portknock:validate', async (event, sequence: string) => {
 
 // Check for updates from GitHub
 const UPDATE_REPO = 'marixdev/marix';
+const AUTO_UPDATE_ENABLED = false; // Disabled for fork builds
 
 ipcMain.handle('app:checkForUpdates', async () => {
+  if (!AUTO_UPDATE_ENABLED) {
+    return {
+      success: false,
+      disabled: true,
+      error: 'Auto-update is disabled in this fork build'
+    };
+  }
+
   try {
     const https = require('https');
     return new Promise((resolve) => {
