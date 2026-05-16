@@ -290,6 +290,9 @@ const App: React.FC = () => {
   
   // Command Recall state (default disabled - user enables in Settings)
   const [commandRecallEnabled, setCommandRecallEnabled] = useState(false);
+
+  // Snippet panel default visibility (default hidden)
+  const [showSnippetByDefault, setShowSnippetByDefault] = useState(false);
   
   // Terminal Font state
   const [terminalFont, setTerminalFont] = useState('JetBrains Mono');
@@ -1817,12 +1820,16 @@ const App: React.FC = () => {
           const parsed = JSON.parse(settings);
           // Default to false - user must explicitly enable
           setCommandRecallEnabled(parsed.enableCommandRecall === true);
+          // Default hidden unless user explicitly enables
+          setShowSnippetByDefault(parsed.showSnippetByDefault === true);
         } else {
           setCommandRecallEnabled(false); // Default disabled
+          setShowSnippetByDefault(false); // Default hidden
         }
       } catch (err) {
         console.error('[App] Failed to load command recall setting:', err);
         setCommandRecallEnabled(false); // Default disabled on error
+        setShowSnippetByDefault(false); // Default hidden on error
       }
     };
     loadCommandRecallSetting();
@@ -1939,6 +1946,20 @@ const App: React.FC = () => {
       setCommandRecallEnabled(newValue);
     } catch (err) {
       console.error('[App] Failed to toggle command recall:', err);
+    }
+  };
+
+  // Toggle snippet panel default visibility
+  const toggleShowSnippetByDefault = () => {
+    const newValue = !showSnippetByDefault;
+    try {
+      const settings = localStorage.getItem('app_settings');
+      const parsed = settings ? JSON.parse(settings) : {};
+      parsed.showSnippetByDefault = newValue;
+      localStorage.setItem('app_settings', JSON.stringify(parsed));
+      setShowSnippetByDefault(newValue);
+    } catch (err) {
+      console.error('[App] Failed to toggle snippet default setting:', err);
     }
   };
 
@@ -3906,6 +3927,39 @@ const App: React.FC = () => {
                         </svg>
                         <span>{t('commandRecallSecurityNote')}</span>
                       </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Snippet Panel */}
+                <div className={`rounded-xl p-4 sm:p-5 ${appTheme === 'light' ? 'bg-white border border-gray-200 shadow-sm' : 'bg-navy-800 border border-navy-700'}`}>
+                  <h3 className={`text-sm font-medium mb-3 sm:mb-4 flex items-center gap-2 ${appTheme === 'light' ? 'text-gray-900' : 'text-white'}`}>
+                    <svg className="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                    </svg>
+                    {t('snippets') || 'Snippets'}
+                  </h3>
+
+                  <div className="space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+                      <div>
+                        <p className={`text-sm ${appTheme === 'light' ? 'text-gray-700' : 'text-gray-300'}`}>
+                          Show Snippet panel by default
+                        </p>
+                        <p className={`text-xs ${appTheme === 'light' ? 'text-gray-500' : 'text-gray-500'}`}>
+                          Automatically open the Snippet panel when opening terminal sessions
+                        </p>
+                      </div>
+                      <button
+                        onClick={toggleShowSnippetByDefault}
+                        className={`relative w-12 h-6 rounded-full transition ${
+                          showSnippetByDefault ? 'bg-indigo-600' : appTheme === 'light' ? 'bg-gray-300' : 'bg-navy-600'
+                        }`}
+                      >
+                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                          showSnippetByDefault ? 'translate-x-7' : 'translate-x-1'
+                        }`} />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -5900,7 +5954,7 @@ const App: React.FC = () => {
                   connectionId={session.connectionId}
                   theme={currentTheme}
                   server={session.server}
-                  showSnippetPanel={session.server.id !== 'local'}
+                  showSnippetPanel={showSnippetByDefault}
                 />
               ) : session.type === 'rdp' ? (
                 <RDPViewer
