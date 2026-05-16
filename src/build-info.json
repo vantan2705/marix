@@ -1,12 +1,12 @@
 {
-  "commitSha": "d0690078ab85ddbe365b92544c865a0a303ed1da",
-  "commitShort": "d069007",
+  "commitSha": "4366f8575d841306c28270e94ebff0ab2284e2ef",
+  "commitShort": "4366f85",
   "branch": "main",
-  "buildTime": "2026-05-14T12:20:36.777Z",
-  "buildTimestamp": 1778761236777,
+  "buildTime": "2026-05-16T15:56:26.983Z",
+  "buildTimestamp": 1778946986983,
   "runId": "local",
   "repository": "marixdev/marix",
-  "nodeVersion": "v22.14.0",
+  "nodeVersion": "v24.15.0",
   "platform": "linux",
   "arch": "x64"
 }

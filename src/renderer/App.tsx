@@ -6444,11 +6444,12 @@ const App: React.FC = () => {
                   return (
                     <button
                       key={server.id}
-                      onClick={() => {
-                        handleConnect(server);
+                      onClick={async () => {
+                        await handleConnect(server);
                         setQuickConnectOpen(false);
                         setQuickConnectSearch('');
                       }}
+                      disabled={connectingServerId !== null}
                       className="w-full px-4 py-3 flex items-center gap-3 hover:bg-navy-700 transition text-left border-b border-navy-700/50"
                     >
                       {/* Protocol icon matching ServerList style */}
@@ -6504,16 +6505,23 @@ const App: React.FC = () => {
                           </div>
                         )}
                       </div>
-                      <span className={`text-xs px-2 py-0.5 rounded font-medium ${
-                        protocol === 'ssh' ? 'bg-teal-500/20 text-teal-400' :
-                        protocol === 'rdp' ? 'bg-blue-500/20 text-blue-400' :
-                        protocol === 'ftp' ? 'bg-orange-500/20 text-orange-400' :
-                        protocol === 'ftps' ? 'bg-amber-500/20 text-amber-400' :
-                        protocol === 'wss' ? 'bg-indigo-500/20 text-indigo-400' :
-                        'bg-gray-500/20 text-gray-400'
-                      }`}>
-                        {protocol.toUpperCase()}
-                      </span>
+                      {connectingServerId === server.id ? (
+                        <div className="flex items-center gap-2 text-xs text-teal-400">
+                          <div className="w-3.5 h-3.5 border-2 border-teal-400/30 border-t-teal-400 rounded-full animate-spin" />
+                          <span>{t('connecting') || 'Connecting'}</span>
+                        </div>
+                      ) : (
+                        <span className={`text-xs px-2 py-0.5 rounded font-medium ${
+                          protocol === 'ssh' ? 'bg-teal-500/20 text-teal-400' :
+                          protocol === 'rdp' ? 'bg-blue-500/20 text-blue-400' :
+                          protocol === 'ftp' ? 'bg-orange-500/20 text-orange-400' :
+                          protocol === 'ftps' ? 'bg-amber-500/20 text-amber-400' :
+                          protocol === 'wss' ? 'bg-indigo-500/20 text-indigo-400' :
+                          'bg-gray-500/20 text-gray-400'
+                        }`}>
+                          {protocol.toUpperCase()}
+                        </span>
+                      )}
                     </button>
                   );
                 })}
